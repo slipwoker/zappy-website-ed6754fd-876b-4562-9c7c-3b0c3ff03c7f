@@ -1,0 +1,47 @@
+# Business — Generative Engine Optimization Map
+
+---
+
+## Pages
+
+### בית
+https://example.com
+מחפשים צלם מגנטים בצפון? דודו צילום מציע שירותי צילום מקצועיים לכל אירוע - בר מצווה, חתונות ואירועים משפחתיים. תיעוד מושלם ברגעים הכי חשובים!
+
+### אודות
+https://example.com/about
+למה לבחור בדודו צילום? עם שנות ניסיון בצילום אירועים בקריות והצפון, אנחנו מתמחים בלהפוך כל רגע לזיכרון נצחי. הכירו את הצלם שמאחורי המצלמה!
+
+### קטגוריות
+https://example.com/categories
+צפו בתיק העבודות שלנו: צילום בר מצווה, חתונות, אירועים עסקיים ועוד. כל קטגוריה מציגה את המומחיות שלנו בצילום מגנטים ואירועים בקריות והצפון.
+
+### צור קשר
+https://example.com/contact
+מוכנים להזמין צלם מגנטים בקריות? צרו קשר עם דודו צילום עוד היום לקבלת הצעת מחיר ולתיאום פגישת היכרות. זמינות מוגבלת - אל תפספסו!
+
+## Legal & Policy
+
+### Privacy Policy
+https://example.com/privacy
+Information about how user data is collected, stored, and protected.
+
+### Terms & Conditions
+https://example.com/terms
+Legal terms describing service usage, rights, and policies.
+
+### Accessibility Statement
+https://example.com/accessibility
+Information about WCAG compliance and accessibility features.
+
+---
+
+# Business Context (for LLM understanding)
+
+## About Business
+---
+
+# Additional Resources
+
+- **Sitemap**: https://example.com/sitemap.xml
+- **Robots.txt**: https://example.com/robots.txt

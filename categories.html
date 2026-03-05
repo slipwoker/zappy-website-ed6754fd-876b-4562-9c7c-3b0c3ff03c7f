@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>גלריית צילומים לפי נושאים וסוגי אירועים — דודו צילום לכל אירוע</title>
+    <meta name="description" content="צפו בתיק העבודות שלנו: צילום בר מצווה, חתונות, אירועים עסקיים ועוד. כל קטגוריה מציגה את המומחיות שלנו בצילום מגנטים ואירועים בקריות והצפון.">
+    <meta name="keywords" content="צלם מקצועי לבר מצווה, גלריית צילומים, סוגי צילום אירועים, תיק עבודות צלם, צילום חתונות בצפון">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: 'ed6754fd-876b-4562-9c7c-3b0c3ff03c7f',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="גלריית צילומים לפי נושאים וסוגי אירועים — דודו צילום לכל אירוע">
+  <meta property="og:description" content="צפו בתיק העבודות שלנו: צילום בר מצווה, חתונות, אירועים עסקיים ועוד. כל קטגוריה מציגה את המומחיות שלנו בצילום מגנטים ואירועים בקריות והצפון.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="גלריית צילומים לפי נושאים וסוגי אירועים — דודו צילום לכל אירוע">
+  <meta name="twitter:description" content="צפו בתיק העבודות שלנו: צילום בר מצווה, חתונות, אירועים עסקיים ועוד. כל קטגוריה מציגה את המומחיות שלנו בצילום מגנטים ואירועים בקריות והצפון.">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: #333 !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))), .sub-menu:not(:has(li)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .sub-menu.mobile-expanded { max-height: 500px !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-light) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-light) !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-light) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewbox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewbox="0 0 24 24" fill="none" style="display:none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  
+  <button class="phone-header-btn" aria-label="Call">
+    <svg width="20" height="20" viewbox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+  
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img src="/assets/logo.webp" alt="דודו צילום לכל אירוע" class="logo">
+      </a>
+    </div>
+    
+    <ul class="nav-menu" id="navMenu"><li><a href="/about">אודות</a></li><li><a href="/categories">קטגוריות</a></li></ul>
+    
+    <div class="nav-cta-container">
+      <a href="/contact" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+  
+  <main>
+    <section class="categories-page-hero-section" data-layout-spec="קטגוריות-page-hero">
+  <div class="categories-page-hero-section__image-container">
+    <img data-placeholder="categories-page-hero-banner" data-context="Cinematic wide banner image for a professional photography business showcasing diverse event photography - a collage or montage featuring weddings, bar mitzvahs, family portraits, and corporate events with warm emotional lighting, subtle film grain texture, and rich colors that evoke nostalgia and celebration" width="1920" height="800" src="/assets/site-categories-page-hero-banner.webp" alt="דודו צילום - קטגוריות צילום לכל אירוע">
+    <div class="categories-page-hero-section__scrim"></div>
+    <div class="categories-page-hero-section__grain-overlay"></div>
+  </div>
+  <div class="categories-page-hero-section__content">
+    <h1 class="categories-page-hero-section__title">קטגוריות</h1>
+    <h3 class="categories-page-hero-section__subtitle">גלה את הסגנון המושלם לאירוע שלך - עיין בגלריות לפי נושא ואופי</h3>
+  </div>
+  <div class="categories-page-hero-section__divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 24" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="filmstrip-perf" x="0" y="0" width="16" height="24" patternunits="userSpaceOnUse">
+          <rect x="6" y="2" width="4" height="4" rx="0.5" fill="#F3E8E6" opacity="0.3"></rect>
+          <rect x="6" y="10" width="4" height="4" rx="0.5" fill="#F3E8E6" opacity="0.3"></rect>
+          <rect x="6" y="18" width="4" height="4" rx="0.5" fill="#F3E8E6" opacity="0.3"></rect>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="1200" height="24" fill="url(#filmstrip-perf)"></rect>
+      <path d="M0,24 L0,12 L1200,12 L1200,24 Z" fill="#F3E8E6"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="categories-category-index-section" data-layout-spec="קטגוריות-category-index">
+  <div class="categories-category-index-container">
+    
+    <!-- Category Block 1: Weddings -->
+    <article class="category-block" style="--gradient-color: rgba(240,106,138,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">חתונות</h2>
+        <p class="category-description">רגעי האושר המרגשים ביותר - מהכנות הבוקר ועד לריקוד האחרון. צילום רגיש ומקצועי שתופס את הקסם, הרגש והפרטים הקטנים שיישארו לנצח.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-top">
+        <img data-placeholder="categories-category-index-image-1" data-context="Beautiful outdoor Jewish wedding ceremony chuppah with flowers, bride and groom under canopy, romantic sunset lighting, professional photography" width="280" height="210" src="/assets/site-categories-category-index-image-1.webp" alt="טקס חתונה חיצוני עם חופה מעוצבת">
+        <img data-placeholder="categories-category-index-image-2" data-context="Bride getting ready, makeup and hair styling, bridesmaids helping, soft natural window light, candid emotional moment" width="280" height="210" src="/assets/site-categories-category-index-image-2.webp" alt="הכנות כלה - איפור ושיער">
+        <img data-placeholder="categories-category-index-image-3" data-context="Wedding reception dance floor, guests dancing joyfully, colorful lights, energy and celebration, wide angle shot" width="280" height="210" src="/assets/site-categories-category-index-image-3.webp" alt="ריקודים בחתונה - אורחים חוגגים">
+        <img data-placeholder="categories-category-index-image-4" data-context="Bride and groom romantic portrait at golden hour, natural landscape background, intimate pose, dreamy lighting" width="280" height="210" src="/assets/site-categories-category-index-image-4.webp" alt="זוג חתן וכלה - פורטרט רומנטי">
+        <img data-placeholder="categories-category-index-image-5" data-context="Wedding table setting with elegant floral centerpiece, fine dining setup, candles, luxury details close-up" width="280" height="210" src="/assets/site-categories-category-index-image-5.webp" alt="עיצוב שולחן חתונה מפואר">
+        <img data-placeholder="categories-category-index-image-6" data-context="First dance moment, bride and groom on dance floor, spotlight, emotional expression, black and white artistic shot" width="280" height="210" src="/assets/site-categories-category-index-image-6.webp" alt="ריקוד ראשון - רגע מרגש">
+      </div>
+    </article>
+
+    <div class="category-divider"></div>
+
+    <!-- Category Block 2: Bar/Bat Mitzvahs -->
+    <article class="category-block" style="--gradient-color: rgba(123,98,166,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">בר ובת מצווה</h2>
+        <p class="category-description">חגיגת ההתבגרות המיוחדת - מהטקס המרגש ועד למסיבה הצבעונית. צילום שמשלב כבוד למסורת עם אנרגיה צעירה ועכשווית.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-center">
+        <img data-placeholder="categories-category-index-image-7" data-context="Bar Mitzvah boy reading Torah at synagogue, traditional Jewish ceremony, family watching proudly, warm indoor lighting" width="280" height="210" src="/assets/site-categories-category-index-image-7.webp" alt="בר מצווה - קריאה בתורה בבית כנסת">
+        <img data-placeholder="categories-category-index-image-8" data-context="Bat Mitzvah celebration party, teenage girl dancing with friends, colorful decorations, fun energetic atmosphere" width="280" height="210" src="/assets/site-categories-category-index-image-8.webp" alt="בת מצווה - מסיבת חגיגה עם חברים">
+        <img data-placeholder="categories-category-index-image-9" data-context="Family portrait at Bar Mitzvah, three generations together, formal elegant clothing, studio quality lighting" width="280" height="210" src="/assets/site-categories-category-index-image-9.webp" alt="תמונת משפחה בבר מצווה - שלושה דורות">
+        <img data-placeholder="categories-category-index-image-10" data-context="Bar Mitzvah party dessert table, colorful candy bar, themed decorations, creative display setup" width="280" height="210" src="/assets/site-categories-category-index-image-10.webp" alt="שולחן קינוחים בבר מצווה - עיצוב יצירתי">
+        <img data-placeholder="categories-category-index-image-11" data-context="Bat Mitzvah girl portrait in elegant dress, confident pose, soft pink and purple lighting, professional studio shot" width="280" height="210" src="/assets/site-categories-category-index-image-11.webp" alt="פורטרט בת מצווה - שמלה חגיגית">
+        <img data-placeholder="categories-category-index-image-12" data-context="Bar Mitzvah candle lighting ceremony, emotional moment with grandparents, warm candlelight glow, black and white" width="280" height="210" src="/assets/site-categories-category-index-image-12.webp" alt="הדלקת נרות בבר מצווה - רגע משפחתי">
+      </div>
+    </article>
+
+    <div class="category-divider"></div>
+
+    <!-- Category Block 3: Corporate Events -->
+    <article class="category-block" style="--gradient-color: rgba(113,188,161,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">אירועי חברות</h2>
+        <p class="category-description">כנסים, השקות מוצרים, ימי גיבוש וערבי הוקרה. צילום מקצועי שמדגיש את המותג שלכם ומתעד את האירוע בצורה דינמית ומושכת.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-top">
+        <img data-placeholder="categories-category-index-image-13" data-context="Corporate conference keynote speaker on stage, professional business event, audience in modern auditorium, dramatic lighting" width="280" height="210" src="/assets/site-categories-category-index-image-13.webp" alt="כנס עסקי - דובר על הבמה">
+        <img data-placeholder="categories-category-index-image-14" data-context="Business networking event, professionals mingling with drinks, modern office space, natural candid interactions" width="280" height="210" src="/assets/site-categories-category-index-image-14.webp" alt="אירוע נטוורקינג עסקי - אנשי מקצוע">
+        <img data-placeholder="categories-category-index-image-15" data-context="Product launch event, new technology reveal, branded backdrop, excited attendees, colorful stage lighting" width="280" height="210" src="/assets/site-categories-category-index-image-15.webp" alt="השקת מוצר - חשיפה טכנולוגית">
+        <img data-placeholder="categories-category-index-image-16" data-context="Team building activity outdoors, colleagues collaborating on challenge, fun energetic group photo, natural daylight" width="280" height="210" src="/assets/site-categories-category-index-image-16.webp" alt="יום גיבוש - פעילות קבוצתית בחוץ">
+        <img data-placeholder="categories-category-index-image-17" data-context="Corporate award ceremony, executive receiving trophy on stage, elegant formal event, professional photography" width="280" height="210" src="/assets/site-categories-category-index-image-17.webp" alt="טקס הוקרה - מנהל מקבל פרס">
+        <img data-placeholder="categories-category-index-image-18" data-context="Business headshot portrait, professional woman in suit, clean white background, confident expression, studio lighting" width="280" height="210" src="/assets/site-categories-category-index-image-18.webp" alt="תמונת פרופיל עסקית - אישה מקצועית">
+      </div>
+    </article>
+
+    <div class="category-divider"></div>
+
+    <!-- Category Block 4: Family Sessions -->
+    <article class="category-block" style="--gradient-color: rgba(242,195,107,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">צילומי משפחה</h2>
+        <p class="category-description">רגעי איכות עם האנשים שאתם הכי אוהבים. צילומים טבעיים ומלאי חום שמתעדים את הקשר המיוחד והרגעים הספונטניים שבין בני המשפחה.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-center">
+        <img data-placeholder="categories-category-index-image-19" data-context="Happy family of four outdoors in park, parents with two children, natural poses, golden hour sunlight, warm atmosphere" width="280" height="210" src="/assets/site-categories-category-index-image-19.webp" alt="משפחה מאושרת בפארק - ארבעה בני אדם">
+        <img data-placeholder="categories-category-index-image-20" data-context="Grandparents with grandchildren portrait, multi-generational family, loving embrace, soft natural light, emotional connection" width="280" height="210" src="/assets/site-categories-category-index-image-20.webp" alt="סבא וסבתא עם נכדים - דורות ביחד">
+        <img data-placeholder="categories-category-index-image-21" data-context="Young family with baby at home, intimate lifestyle photography, nursery setting, tender moments, soft window light" width="280" height="210" src="/assets/site-categories-category-index-image-21.webp" alt="משפחה צעירה עם תינוק - רגעים אינטימיים">
+        <img data-placeholder="categories-category-index-image-22" data-context="Family picnic outdoors, children playing, parents relaxed on blanket, casual fun atmosphere, bright sunny day" width="280" height="210" src="/assets/site-categories-category-index-image-22.webp" alt="פיקניק משפחתי - ילדים משחקים">
+        <img data-placeholder="categories-category-index-image-23" data-context="Siblings portrait, brother and sister close-up, playful interaction, colorful background, joyful expressions" width="280" height="210" src="/assets/site-categories-category-index-image-23.webp" alt="אחים - אח ואחות במצב משחקי">
+        <img data-placeholder="categories-category-index-image-24" data-context="Extended family group photo outdoors, large family gathering, beautiful nature backdrop, everyone smiling, professional composition" width="280" height="210" src="/assets/site-categories-category-index-image-24.webp" alt="תמונה משפחתית גדולה - מפגש משפחתי">
+      </div>
+    </article>
+
+    <div class="category-divider"></div>
+
+    <!-- Category Block 5: Couple Portraits -->
+    <article class="category-block" style="--gradient-color: rgba(240,106,138,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">צילומי זוגות</h2>
+        <p class="category-description">האהבה שלכם בעדשה. צילומים רומנטיים ואינטימיים שמספרים את הסיפור שלכם - מזוגות מאורסים ועד חגיגות יובל נישואין.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-top">
+        <img data-placeholder="categories-category-index-image-25" data-context="Engaged couple romantic portrait at sunset beach, holding hands, silhouette against golden sky, dreamy atmosphere" width="280" height="210" src="/assets/site-categories-category-index-image-25.webp" alt="זוג מאורסים בחוף - שקיעה רומנטית">
+        <img data-placeholder="categories-category-index-image-26" data-context="Couple in love walking in city street, casual urban setting, candid moment, natural interaction, soft bokeh background" width="280" height="210" src="/assets/site-categories-category-index-image-26.webp" alt="זוג מאוהב ברחוב העיר - רגע ספונטני">
+        <img data-placeholder="categories-category-index-image-27" data-context="Anniversary couple portrait, mature couple celebrating years together, elegant formal attire, studio lighting, warm expressions" width="280" height="210" src="/assets/site-categories-category-index-image-27.webp" alt="זוג חוגג יובל נישואין - פורטרט אלגנטי">
+        <img data-placeholder="categories-category-index-image-28" data-context="Couple embracing in nature, surrounded by wildflowers, romantic outdoor setting, soft natural light, intimate pose" width="280" height="210" src="/assets/site-categories-category-index-image-28.webp" alt="זוג בחיבוק בטבע - פרחי בר">
+        <img data-placeholder="categories-category-index-image-29" data-context="Engagement ring close-up with couple blurred in background, romantic detail shot, soft focus, warm tones" width="280" height="210" src="/assets/site-categories-category-index-image-29.webp" alt="טבעת אירוסין - צילום תקריב">
+        <img data-placeholder="categories-category-index-image-30" data-context="Couple laughing together, genuine joy and connection, black and white artistic portrait, emotional expression" width="280" height="210" src="/assets/site-categories-category-index-image-30.webp" alt="זוג צוחק ביחד - שחור לבן אמנותי">
+      </div>
+    </article>
+
+    <div class="category-divider"></div>
+
+    <!-- Category Block 6: Small Celebrations -->
+    <article class="category-block" style="--gradient-color: rgba(123,98,166,0.08)">
+      <div class="category-content">
+        <h2 class="category-title">חגיגות קטנות</h2>
+        <p class="category-description">ימי הולדת, ברית מילה, מסיבות הפתעה ואירועים אינטימיים. צילום חם ואישי שתופס את השמחה והקרבה של חגיגות קטנות ומשמעותיות.</p>
+        <a href="#contact" class="category-cta">צרו קשר לפרטים <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="category-filmstrip filmstrip-center">
+        <img data-placeholder="categories-category-index-image-31" data-context="Children birthday party, kids playing with balloons and cake, colorful decorations, joyful celebration atmosphere" width="280" height="210" src="/assets/site-categories-category-index-image-31.webp" alt="יום הולדת ילדים - בלונים ועוגה">
+        <img data-placeholder="categories-category-index-image-32" data-context="Brit Milah ceremony, Jewish circumcision celebration, family gathered, traditional religious moment, warm indoor lighting" width="280" height="210" src="/assets/site-categories-category-index-image-32.webp" alt="ברית מילה - טקס מסורתי משפחתי">
+        <img data-placeholder="categories-category-index-image-33" data-context="Surprise party moment, person shocked and happy, friends revealing surprise, candid emotional reaction" width="280" height="210" src="/assets/site-categories-category-index-image-33.webp" alt="מסיבת הפתעה - רגע ההפתעה">
+        <img data-placeholder="categories-category-index-image-34" data-context="Small intimate dinner party, friends around table, candles and wine, cozy home atmosphere, warm lighting" width="280" height="210" src="/assets/site-categories-category-index-image-34.webp" alt="ארוחת ערב אינטימית - חברים סביב השולחן">
+        <img data-placeholder="categories-category-index-image-35" data-context="Baby first birthday smash cake, toddler covered in frosting, colorful mess, parents laughing, fun moment" width="280" height="210" src="/assets/site-categories-category-index-image-35.webp" alt="יום הולדת ראשון - תינוק עם עוגה">
+        <img data-placeholder="categories-category-index-image-36" data-context="Retirement party celebration, colleagues honoring retiree, cake cutting moment, office setting, happy faces" width="280" height="210" src="/assets/site-categories-category-index-image-36.webp" alt="מסיבת פרישה - חגיגה במשרד">
+      </div>
+    </article>
+
+  </div>
+
+  <!-- Bottom Divider: Torn Paper Edge -->
+  <div class="categories-category-index-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 60" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,60 L0,30 Q15,28 30,32 Q45,35 60,30 Q75,26 90,31 Q105,34 120,29 Q135,25 150,30 Q165,33 180,28 Q195,24 210,29 Q225,32 240,27 Q255,23 270,28 Q285,31 300,26 Q315,22 330,27 Q345,30 360,25 Q375,21 390,26 Q405,29 420,24 Q435,20 450,25 Q465,28 480,23 Q495,19 510,24 Q525,27 540,22 Q555,18 570,23 Q585,26 600,21 Q615,17 630,22 Q645,25 660,20 Q675,16 690,21 Q705,24 720,19 Q735,15 750,20 Q765,23 780,18 Q795,14 810,19 Q825,22 840,17 Q855,13 870,18 Q885,21 900,16 Q915,12 930,17 Q945,20 960,15 Q975,11 990,16 Q1005,19 1020,14 Q1035,10 1050,15 Q1065,18 1080,13 Q1095,9 1110,14 Q1125,17 1140,12 Q1155,8 1170,13 Q1185,16 1200,11 L1200,60 Z" fill="#F3E8E6"></path>
+    </svg>
+  </div>
+
+</section>
+
+<section class="categories-portfolio-section" data-layout-spec="קטגוריות-portfolio">
+  <div class="categories-portfolio-container">
+    <header class="categories-portfolio-header">
+      <h2>רגעים מובילים</h2>
+      <p>סיפור עקבי ומרגש בכל אירוע - מחתונות ועד בר מצוות, אנחנו לוכדים את הרגעים המיוחדים שלכם</p>
+    </header>
+
+    <div class="categories-portfolio-grid">
+      <div class="categories-portfolio-item categories-portfolio-item-anchor">
+        <img data-placeholder="categories-portfolio-image-1" data-context="Professional wedding photography - emotional moment of bride and groom during ceremony, soft natural lighting, candid genuine expressions, elegant composition for Israeli photography business" data-element-type="icon" data-icon-type="image" width="800" height="900" src="/assets/site-categories-portfolio-image-1.webp" alt="צילום חתונה מרגש - רגע טקס">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">חתונות</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-medium">
+        <img data-placeholder="categories-portfolio-image-2" data-context="Bar Mitzvah celebration photography - young boy reading Torah with proud family watching, warm synagogue lighting, meaningful cultural moment for Israeli photography business" data-element-type="icon" data-icon-type="image" width="600" height="700" src="/assets/site-categories-portfolio-image-2.webp" alt="צילום בר מצווה - קריאה בתורה">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">בר/בת מצווה</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-small">
+        <img data-placeholder="categories-portfolio-image-3" data-context="Family portrait photography - multigenerational Israeli family smiling together outdoors, natural warm lighting, genuine connections and happiness" data-element-type="icon" data-icon-type="image" width="500" height="500" src="/assets/site-categories-portfolio-image-3.webp" alt="צילום משפחתי - דורות ביחד">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">משפחה</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-wide">
+        <img data-placeholder="categories-portfolio-image-4" data-context="Corporate event photography - professional business conference in Israel, people networking and presenting, modern venue with natural light" data-element-type="icon" data-icon-type="image" width="900" height="600" src="/assets/site-categories-portfolio-image-4.webp" alt="צילום אירוע עסקי - כנס מקצועי">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">אירועים עסקיים</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-small">
+        <img data-placeholder="categories-portfolio-image-5" data-context="Engagement photography - young Israeli couple in romantic outdoor setting, golden hour lighting, intimate moment with authentic emotions" data-element-type="icon" data-icon-type="image" width="500" height="500" src="/assets/site-categories-portfolio-image-5.webp" alt="צילום אירוסין - רגע רומנטי">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">אירוסין</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-tall">
+        <img data-placeholder="categories-portfolio-image-6" data-context="Birthday party photography - joyful children celebrating with balloons and cake, colorful decorations, candid fun moments" data-element-type="icon" data-icon-type="image" width="600" height="800" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%99%D7%95%D7%9D%20%D7%94%D7%95%D7%9C%D7%93%D7%AA%20-%20%D7%97%D7%92%D7%99%D7%92%D7%94%20%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%AA%3C/text%3E%3C/svg%3E" alt="צילום יום הולדת - חגיגה צבעונית">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">ימי הולדת</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-medium">
+        <img data-placeholder="categories-portfolio-image-7" data-context="Brit Milah ceremony photography - emotional Jewish circumcision ceremony, family gathering with traditional elements, meaningful cultural moment" data-element-type="icon" data-icon-type="image" width="600" height="700" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='700'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%91%D7%A8%D7%99%D7%AA%20%D7%9E%D7%99%D7%9C%D7%94%20-%20%D7%98%D7%A7%D7%A1%20%D7%9E%D7%A1%D7%95%D7%A8%D7%AA%D7%99%3C/text%3E%3C/svg%3E" alt="צילום ברית מילה - טקס מסורתי">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">ברית מילה</span>
+        </div>
+      </div>
+
+      <div class="categories-portfolio-item categories-portfolio-item-small">
+        <img data-placeholder="categories-portfolio-image-8" data-context="Graduation photography - proud graduate in cap and gown holding diploma, Israeli university campus background, achievement moment" data-element-type="icon" data-icon-type="image" width="500" height="500" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF0083;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF008320;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grad)'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial, sans-serif' font-size='18' fill='white' text-anchor='middle' dy='.3em' font-weight='500'%3E%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%A1%D7%99%D7%95%D7%9D%20%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D%20-%20%D7%A8%D7%92%D7%A2%20%D7%94%D7%99%D7%A9%D7%92%3C/text%3E%3C/svg%3E" alt="צילום סיום לימודים - רגע הישג">
+        <div class="categories-portfolio-overlay">
+          <span class="categories-portfolio-category">סיום לימודים</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="categories-portfolio-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 120" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="categories-portfolio-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#F3E8E6;stop-opacity:1"></stop>
+          <stop offset="60%" style="stop-color:#1E1B2B;stop-opacity:0.3"></stop>
+          <stop offset="100%" style="stop-color:#1E1B2B;stop-opacity:1"></stop>
+        </linearGradient>
+        <filter id="categories-portfolio-grain">
+          <feTurbulence type="fractalNoise" basefrequency="0.9" numoctaves="3" stitchtiles="stitch"></feTurbulence>
+          <feColorMatrix type="saturate" values="0"></feColorMatrix>
+          <feBlend mode="multiply" in2="SourceGraphic" result="blend"></feBlend>
+        </filter>
+      </defs>
+      <rect x="0" y="0" width="1200" height="120" fill="url(#categories-portfolio-gradient)" filter="url(#categories-portfolio-grain)" opacity="0.85"></rect>
+    </svg>
+  </div>
+</section>
+
+<section class="categories-cta-social-section" data-layout-spec="קטגוריות-cta-social">
+  <div class="categories-cta-social-container">
+    <h2 class="categories-cta-social-title">ראו עוד ובואו להגיד שלום</h2>
+    <p class="categories-cta-social-text">מוזמנים לצפות בעבודות האחרונות שלנו בפייסבוק וליצור קשר לבדיקת זמינות. נשמח לשמוע מכם ולהיות חלק מהרגע המיוחד שלכם.</p>
+    <div class="categories-cta-social-buttons">
+      <a href="/contact" class="categories-cta-social-btn categories-cta-social-btn-primary">צור קשר</a>
+      <a href="https://facebook.com/[facebook_handle]" target="_blank" rel="noopener noreferrer" class="categories-cta-social-btn categories-cta-social-btn-secondary">
+        <svg class="categories-cta-social-icon" width="18" height="18" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"></path>
+        </svg>
+        <span>פייסבוק</span>
+      </a>
+    </div>
+  </div>
+  <div class="categories-cta-social-grain" aria-hidden="true"></div>
+</section>
+  </main>
+  
+  <footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-column company-info">
+        <img src="/assets/logo.webp" alt="דודו צילום לכל אירוע" class="logo">
+        <p class="company-description">צילום מקצועי לכל אירוע - חתונות, בר מצווה, אירועים עסקיים ועוד. מלכדים את הרגעים המיוחדים שלכם לנצח.</p>
+      </div>
+      
+      <div class="footer-column quick-links">
+        <h3 class="footer-heading">קישורים מהירים</h3>
+        <ul class="footer-links">
+          <li><a href="/about">אודות</a></li>
+          <li><a href="/categories">קטגוריות</a></li>
+          <li><a href="/contact">צור קשר</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column contact-info">
+        <h3 class="footer-heading">יצירת קשר</h3>
+        <ul class="contact-list">
+          <li>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:[business_email]">[business_email]</a>
+          </li>
+          <li>
+            <i class="fas fa-phone"></i>
+            <a href="tel:[business_phone]">[business_phone]</a>
+          </li>
+          <li><a href="/"><i class="fas fa-map-marker-alt"></i>
+            <span>[business_address]</span></a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column social-media">
+        <h3 class="footer-heading">עקבו אחרינו</h3>
+        <div class="social-links">
+          <a href="[facebook_handle]" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="[instagram_handle]" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="[whatsapp_handle]" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="copyright">
+        <p>© 2026 דודו צילום לכל אירוע. כל הזכויות שמורות.</p>
+      </div>
+      <div class="footer-legal">
+        <a href="/privacy">מדיניות פרטיות</a>
+        <span class="separator">|</span>
+        <a href="/terms">תנאי שימוש</a>
+        <span class="separator">|</span>
+        <a href="/accessibility">נגישות</a>
+        <span class="separator">|</span>
+        <a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות Zappy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-navbar-scroll-effect">
+    (function(){var nb=document.querySelector('nav.navbar,.navbar:not(.zappy-catalog-menu)');var cm=document.querySelector('.zappy-catalog-menu');if(!nb)return;var fb='rgba(22,22,22,0.85)';var th=60;nb.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease,box-shadow 0.3s ease';if(cm)cm.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease';function onS(){var y=window.scrollY||window.pageYOffset;if(y>th){nb.style.background=fb;nb.style.backdropFilter='blur(12px)';nb.style.webkitBackdropFilter='blur(12px)';nb.style.boxShadow='0 2px 16px rgba(0,0,0,0.12)';if(cm){cm.style.background=fb;cm.style.backdropFilter='blur(12px)';cm.style.webkitBackdropFilter='blur(12px)';}}else{nb.style.background='transparent';nb.style.backdropFilter='none';nb.style.webkitBackdropFilter='none';nb.style.boxShadow='none';if(cm){cm.style.background='transparent';cm.style.backdropFilter='none';cm.style.webkitBackdropFilter='none';}}}window.addEventListener('scroll',onS,{passive:true});onS();})();
+    </script>
+</body>
+</html>
